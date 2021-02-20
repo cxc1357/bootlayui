@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<link rel="stylesheet" type="text/css" href="layui/css/layui.css"/>
+		<script src="layui/layui.js" type="text/javascript" charset="utf-8"></script>
+	</head>
+	<body>
+		
+		<div class = "demoTable">
+			搜索ID：
+			<div class="layui-inline">
+				<input class="layui-input" name="id" id="demoReload" autocomplete="off">
+			</div>
+			<button class="layui-btn" id="searchBtn">搜索</button>
+		</div>
+		
+		<table id="demo" lay-filter="test"></table>
+		
+		<!-- 表格工具栏 -->
+		<script type="text/html" id="toolbarDemo">
+		  <div class="layui-btn-container">
+		    <button class="layui-btn layui-btn-sm" lay-event="getCheckData">获取选中行数据</button>
+		    <button class="layui-btn layui-btn-sm" lay-event="getCheckLength">获取选中数目</button>
+		    <button class="layui-btn layui-btn-sm" lay-event="isAll">验证是否全选</button>
+		  </div>
+		</script>
+		
+		<!-- 表头工具栏 -->
+		<script type="text/html" id="barDemo">
+			<a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
+			<a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+		</script>
+		
+		<script type="text/javascript">
+			layui.use("table",function(){
+				var table = layui.table;
+				var $ = layui.jquery;
+				
+				table.render({
+					elem:"#demo",
+					url:"http://localhost:8089/user/findAll",
+					cols:[[
+						{field:'aa',type:"numbers"},
+						{field:'bb',type:"checkbox"},
+						{field:'id',title:'编号',sort:true,width:80},
+						{field:'name',title:'姓名',width:100,edit:'text'},
+						{field:'age',title:'年龄',width:100},
+						{field:'bir',title:'生日',width:100},
+						{field:'操作',toolbar:"#barDemo"}
+					]],
+					page:true,
+					// 表格工具栏
+					toolbar:"#toolbarDemo"
+				});
+				
+				// 监听事件
+				table.on('toolbar(test)',function(obj){
+					var checkStatus = table.checkStatus(obj.config.id);
+					console.log(checkStatus);
+					// 获取事件名
+					var eventName = obj.event;
+					// 判断事件名，执行对应代码
+					switch(eventName){
+						case "getCheckData":
+							// 获取被选中的数组
+							var arr = checkStatus.data;
+							// 将数组解析为字符串
+							layer.alert(JSON.stringify(arr));
+							break;
+						case "getCheckLength":
+							var arr = checkStatus.data;
+							layer.msg('选中了'+arr.length+' 个');
+							break;
+						case "isAll":
+							var flag = checkStatus.isAll;
+							var str = flag ? '全选':'未选中';
+							layer.msg(str);
+							break;
+						default:
+							break;
+					}
+				});
+				
+				table.on('tool(test)',function(obj){
+					var tr = obj.data;
+					console.log(tr);
+					var eventName = obj.event;
+					// 判断事件名，执行
+					if(eventName == 'del'){
+						layer.confirm("您确认要删除吗？",function(index){
+							// 删除指定tr
+							obj.del();
+							// 关闭弹出层
+							layer.close(index);
+						});
+					}else if(eventName == 'edit'){
+						layer.prompt({
+							// 表单元素类型 0:文本框 1：密码框 2：文本域
+							formType:0,
+							value:tr.username
+							},function(value,index){
+								obj.update({
+									username:value
+								});
+								layer.close(index);
+						});
+					}
+				});
+				// 监听单元格事件
+				table.on('edit(test)',function(obj){
+					console.log(obj);
+					// 获取修改后的值
+					var value = obj.value;
+					// 得到当前修改的tr对象
+					var data = obj.data;
+					// 得到修改的字段名
+					var field = obj.field;
+					layer.msg("[ID："+data.id+"]的"+field+"字段的值修改为："+value);
+				});
+				
+				$(document).on('click','#searchBtn',function(data){
+					// 获取搜索文本框的值
+					var search = $("#demoReload");
+					// 调用数据表格的重载方法
+					table.reload('demo',{
+						where:{ // 设置需要传递的参数
+							id:search.val(),
+							name:"zhangsan"
+						},
+						page:{
+							// 让条件查询从第一页开始，若未设置则从当前页开始查询，此页前的所有数据不纳入条件筛选
+							curr:1
+						}
+					});
+				});
+			});
+		</script>
+	</body>
+</html>

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title></title>
+		<link rel="stylesheet" type="text/css" href="layui/css/layui.css"/>
+	</head>
+	<body>
+		<form class="layui-form" action="">
+		  <div class="layui-form-item">
+		    <label class="layui-form-label">姓名</label>
+		    <div class="layui-input-block">
+		      <input type="text" name="name" required  lay-verify="required" placeholder="姓名" autocomplete="off" class="layui-input">
+		    </div>
+		  </div>
+		  <div class="layui-form-item">
+		    <label class="layui-form-label">年龄</label>
+		    <div class="layui-input-block">
+		      <input type="text" name="age" required  lay-verify="required" placeholder="年龄" autocomplete="off" class="layui-input">
+		    </div>
+		  </div>
+		  <div class="layui-form-item">
+		    <label class="layui-form-label">生日</label>
+		    <div class="layui-input-block">
+		      <input type="text" name="bir" required  lay-verify="required" placeholder="生日" autocomplete="off" class="layui-input">
+		    </div>
+		  </div>
+		  
+		  <div class="layui-form-item">
+		    <div class="layui-input-block">
+		      <button class="layui-btn" lay-submit lay-filter="formDemo">提交</button>
+		      <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+		    </div>
+		  </div>
+		</form>
+	</body>
+	
+	<script src="layui/layui.js" type="text/javascript" charset="utf-8"></script>
+	<script>
+	;(function(){
+		layui.use(['form','jquery','layer'], function(){
+		  var form = layui.form
+		  var $ = layui.jquery
+		  var layer = layui.layer
+		  //监听提交
+		  form.on('submit(formDemo)', function(data){
+			  console.log(data.field)
+			var field = data.field
+			//ajax后台交互
+			$.ajax({
+				type:"post",
+				url:"http://localhost:8089/user/add",
+				// url:"http://rap2api.taobao.org/app/mock/277524/user/add",
+				// 向后台传输数据
+				data:JSON.stringify(field),
+				// 后台返回数据
+				dataType:"json",
+				contentType:'application/json;charset=UTF-8',
+				success:function(resp){
+					console.log(resp)
+				}
+			})
+			layer.msg(JSON.stringify(data.field));
+			return false;
+		  });
+		});
+	})();
+	</script>
+</html>
